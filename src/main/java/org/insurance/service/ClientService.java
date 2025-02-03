@@ -22,9 +22,14 @@ public class ClientService {
     @Transactional
     public Client updateClientName(String pesel, String newFirstName, String newLastName) {
         return clientRepository.findByPesel(pesel).map(client -> {
-            client.setFirstName(newFirstName);
-            client.setLastName(newLastName);
+            if (newFirstName != null && !newFirstName.isEmpty()) {
+                client.setFirstName(newFirstName);
+            }
+            if (newLastName != null && !newLastName.isEmpty()) {
+                client.setLastName(newLastName);
+            }
             return clientRepository.save(client);
         }).orElseThrow(() -> new RuntimeException("Klient o podanym PESEL nie istnieje."));
     }
+
 }
