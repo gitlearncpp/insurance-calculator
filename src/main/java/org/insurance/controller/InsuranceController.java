@@ -1,5 +1,7 @@
 package org.insurance.controller;
 
+import jakarta.validation.Valid;
+import org.insurance.dto.UpdateClientRequest;
 import org.insurance.model.Client;
 import org.insurance.model.InsuranceOffer;
 import org.insurance.model.Property;
@@ -24,7 +26,7 @@ public class InsuranceController {
     @PostMapping("/calculate")
     public ResponseEntity<?> calculateInsurance(@RequestBody Map<String, Object> request) {
         try {
-            String pesel = (String) request.get("pesel");
+            Long pesel = (request.get("pesel") instanceof Long) ? (Long) request.get("pesel") : Long.parseLong(request.get("pesel").toString());
             String firstName = (String) request.get("firstName");
             String lastName = (String) request.get("lastName");
 
@@ -33,7 +35,7 @@ public class InsuranceController {
             property.setValue(Double.parseDouble(request.get("value").toString()));
             property.setRooms(Integer.parseInt(request.get("rooms").toString()));
 
-            InsuranceOffer offer = insuranceService.calculateInsurance(pesel, firstName, lastName, property);
+            InsuranceOffer offer = insuranceService.calculateInsurance((long)pesel, firstName, lastName, property);
             return ResponseEntity.ok(offer);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
@@ -41,13 +43,13 @@ public class InsuranceController {
     }
 
     @PostMapping("/update-client")
-    public ResponseEntity<?> updateClient(@RequestBody Map<String, String> request) {
+    public ResponseEntity<?> updateClient(@Valid @RequestBody UpdateClientRequest request) {
         try {
-            Client updatedClient = clientService.updateClientName(request.get("pesel"), request.get("newFirstName"), request.get("newLastName"));
+            Client updatedClient = clientService.updateClientName(request.getPesel(), request.getNewFirstName(), request.getNewLastName());
             return ResponseEntity.ok(updatedClient);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
-}
 
+}

@@ -15,12 +15,12 @@ public class ClientService {
         this.clientRepository = clientRepository;
     }
 
-    public Optional<Client> getClientByPesel(String pesel) {
+    public Optional<Client> getClientByPesel(Long pesel) {
         return clientRepository.findByPesel(pesel);
     }
 
     @Transactional
-    public Client updateClientName(String pesel, String newFirstName, String newLastName) {
+    public Client updateClientName(long pesel, String newFirstName, String newLastName) {
         return clientRepository.findByPesel(pesel).map(client -> {
             if (newFirstName != null && !newFirstName.isEmpty()) {
                 client.setFirstName(newFirstName);

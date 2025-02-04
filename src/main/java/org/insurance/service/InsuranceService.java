@@ -6,6 +6,7 @@ import org.insurance.model.Property;
 import org.insurance.repository.ClientRepository;
 import org.insurance.repository.InsuranceOfferRepository;
 import org.insurance.repository.PropertyRepository;
+import org.springdoc.core.converters.AdditionalModelsConverter;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,14 +18,16 @@ public class InsuranceService {
     private final ClientRepository clientRepository;
     private final PropertyRepository propertyRepository;
     private final InsuranceOfferRepository offerRepository;
+    private final AdditionalModelsConverter additionalModelsConverter;
 
-    public InsuranceService(ClientRepository clientRepository, PropertyRepository propertyRepository, InsuranceOfferRepository offerRepository) {
+    public InsuranceService(ClientRepository clientRepository, PropertyRepository propertyRepository, InsuranceOfferRepository offerRepository, AdditionalModelsConverter additionalModelsConverter) {
         this.clientRepository = clientRepository;
         this.propertyRepository = propertyRepository;
         this.offerRepository = offerRepository;
+        this.additionalModelsConverter = additionalModelsConverter;
     }
 
-    public InsuranceOffer calculateInsurance(String pesel, String firstName, String lastName, Property property) {
+    public InsuranceOffer calculateInsurance(Long pesel, String firstName, String lastName, Property property) {
         Optional<Client> existingClient = clientRepository.findByPesel(pesel);
 
         Client client;
@@ -40,7 +43,23 @@ public class InsuranceService {
         property.setClient(client);
         property = propertyRepository.save(property);
 
-        double insurancePrice = (property.getValue() * 0.01) + (property.getRooms() * 50);
+        double mul_Value;
+        if (property.getValue() > 1000000) {
+            mul_Value = 0.1;
+        } else if (property.getValue() > 800000) {
+            mul_Value = 0.05;
+        } else if (property.getValue() > 500000) {
+            mul_Value = 0.1;
+        } else if (property.getValue() > 300000) {
+            mul_Value = 0.05;
+        } else if (property.getValue() > 200000) {
+            mul_Value = 0.3;
+        } else {
+            mul_Value = 0.5;
+        }
+
+
+        double insurancePrice = (property.getValue() * mul_Value) + (property.getRooms() * 2 + 500);
 
         InsuranceOffer offer = InsuranceOffer.builder()
                 .client(client)

@@ -20,7 +20,7 @@ public class Client {
     private String lastName;
 
     @Column(unique = true, nullable = false)
-    private String pesel;
+    private Long pesel;
 
     private String address;
     private LocalDateTime createdAt;
